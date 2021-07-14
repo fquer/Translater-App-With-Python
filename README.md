@@ -8,6 +8,15 @@ Translater uses Google Translate API and PyTesseact.
 
 Changeable language suppport.
 
+# Requirements
+
+* PyQt5 
+* pytesseract
+* pyautogui
+* keyboard
+* googletrans 
+* In line 12 you need to set tesseract.exe file. The latest installers can be downloaded here: https://github.com/UB-Mannheim/tesseract/wiki
+
 # Usage
 
 Click 'Setup' button and press '-' key for top left coordinates, press '+' key for bottom right coorditnates.
