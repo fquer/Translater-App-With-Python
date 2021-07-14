@@ -1,0 +1,283 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import QObject, QThread, pyqtSignal
+from PyQt5.QtWidgets import QMessageBox
+import pytesseract
+import pyautogui
+import keyboard
+import time
+from googletrans import Translator
+
+translator = Translator()
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Kaan\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+
+class Worker(QObject):
+    
+    text = pyqtSignal(str)
+    finished = pyqtSignal()
+
+    def __init__(self, parent=None):
+        QObject.__init__(self, parent=parent)
+        self.continue_run = True  
+
+    def do_work(self):
+        
+        while True:
+            if self.continue_run == True:
+                screen = pyautogui.screenshot()
+                self.img_res = screen.crop((self.top_leftx, self.top_lefty, self.bottom_rightx, self.bottom_righty))
+                sentence = pytesseract.image_to_string(self.img_res, lang=self.language1)
+                list_eng = [sentence]  
+                rez = []
+                for x in list_eng:
+                    rez.append(x.replace("\n"," "))
+
+                try:
+                    self.tr = translator.translate(str(rez) ,dest=self.language2)
+                except:
+                    pass
+
+                tr_text = str(self.tr.text)
+                tr_text = tr_text[:-7]
+                tr_text = tr_text[2:]
+                
+                time.sleep(0.65)
+
+                self.text.emit(tr_text)
+            else:
+                pass
+            
+
+    def set_coordinates(self,topx,topy,botx,boty,l1,l2):
+        self.top_leftx=topx
+        self.top_lefty=topy
+        self.bottom_rightx=botx
+        self.bottom_righty=boty
+        self.language1=l1
+        self.language2=l2
+
+
+    def get_trans(self):
+        self.self.textBrowser.setText(self.tr)
+
+    def stop(self):
+        self.continue_run = False  
+
+    def check(self,boolean):
+        self.continue_run = boolean  
+
+class Ui_MainWindow(QtWidgets.QWidget):
+
+    stop_signal = pyqtSignal()
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.setFixedSize(600, 300)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
+        self.stackedWidget.setGeometry(QtCore.QRect(20, 20, 751, 541))
+        self.stackedWidget.setObjectName("stackedWidget")
+        self.page = QtWidgets.QWidget()
+        self.page.setObjectName("page")
+        self.translate_button = QtWidgets.QPushButton(self.page)
+        self.translate_button.setGeometry(QtCore.QRect(410, 160, 75, 23))
+        self.translate_button.setObjectName("translate_button")
+        self.bottomright = QtWidgets.QLabel(self.page)
+        self.bottomright.setGeometry(QtCore.QRect(40, 80, 111, 21))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.bottomright.setFont(font)
+        self.bottomright.setObjectName("bottomright")
+        self.topleft = QtWidgets.QLabel(self.page)
+        self.topleft.setGeometry(QtCore.QRect(40, 30, 71, 21))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.topleft.setFont(font)
+        self.topleft.setObjectName("topleft")
+        self.topleft_coordinate = QtWidgets.QLabel(self.page)
+        self.topleft_coordinate.setGeometry(QtCore.QRect(150, 30, 181, 20))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.topleft_coordinate.setFont(font)
+        self.topleft_coordinate.setObjectName("topleft_coordinate")
+        self.bottomright_coordinate = QtWidgets.QLabel(self.page)
+        self.bottomright_coordinate.setGeometry(QtCore.QRect(150, 80, 191, 20))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.bottomright_coordinate.setFont(font)
+        self.bottomright_coordinate.setObjectName("bottomright_coordinate")
+        self.coordinate_status = QtWidgets.QLabel(self.page)
+        self.coordinate_status.setGeometry(QtCore.QRect(70, 170, 291, 21))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.coordinate_status.setFont(font)
+        self.coordinate_status.setObjectName("coordinate_status")
+        self.setup_button = QtWidgets.QPushButton(self.page)
+        self.setup_button.setGeometry(QtCore.QRect(100, 130, 75, 23))
+        self.setup_button.setObjectName("setup_button")
+        self.language_1 = QtWidgets.QLineEdit(self.page)
+        self.language_1.setGeometry(QtCore.QRect(380, 70, 41, 20))
+        self.language_1.setObjectName("language_1")
+        self.language_comment = QtWidgets.QLabel(self.page)
+        self.language_comment.setGeometry(QtCore.QRect(310, 70, 260, 90))
+        self.language_comment.setObjectName("language_1")
+        self.language_comment.setAlignment(QtCore.Qt.AlignCenter)
+        self.label = QtWidgets.QLabel(self.page)
+        self.label.setGeometry(QtCore.QRect(440, 70, 31, 20))
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
+        self.language_2 = QtWidgets.QLineEdit(self.page)
+        self.language_2.setGeometry(QtCore.QRect(470, 70, 41, 20))
+        self.language_2.setObjectName("language_2")
+        self.label_3 = QtWidgets.QLabel(self.page)
+        self.label_3.setGeometry(QtCore.QRect(380, 30, 161, 21))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.label_3.setFont(font)
+        self.label_3.setObjectName("label_3")
+        self.stackedWidget.addWidget(self.page)
+        self.page_2 = QtWidgets.QWidget()
+        self.page_2.setObjectName("page_2")
+        self.textBrowser = QtWidgets.QTextBrowser(self.page_2)
+        self.textBrowser.setGeometry(QtCore.QRect(30, 30, 711, 461))
+        font = QtGui.QFont()
+        font.setPointSize(13)
+        self.textBrowser.setFont(font)
+        self.textBrowser.setObjectName("textBrowser")
+        self.back_button = QtWidgets.QPushButton(self.page_2)
+        self.back_button.setGeometry(QtCore.QRect(30, 510, 75, 23))
+        self.back_button.setObjectName("back_button")
+        self.start_button = QtWidgets.QPushButton(self.page_2)
+        self.start_button.setGeometry(QtCore.QRect(400, 510, 75, 23))
+        self.start_button.setObjectName("start_button")
+        self.stop_button = QtWidgets.QPushButton(self.page_2)
+        self.stop_button.setGeometry(QtCore.QRect(300, 510, 75, 23))
+        self.stop_button.setObjectName("stop_button")
+        self.status = QtWidgets.QLabel(self.page_2)
+        self.status.setGeometry(QtCore.QRect(550, 510, 161, 21))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.status.setFont(font)
+        self.status.setObjectName("status")
+        self.status.setText("Status : Waiting...")
+        self.stackedWidget.addWidget(self.page_2)
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslateUi(MainWindow)
+        self.stackedWidget.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        self.topleft_coordinate.setText("Setup Needed")
+        self.bottomright_coordinate.setText("Setup Needed")
+        
+        self.translate_button.clicked.connect(self.b_translate)
+        self.back_button.clicked.connect(self.b_back)
+        self.setup_button.clicked.connect(self.setup)
+
+        self.thread = QThread()
+        self.worker = Worker()
+        self.stop_signal.connect(self.worker.stop)  
+        self.worker.moveToThread(self.thread)
+
+        self.worker.finished.connect(self.thread.quit)  
+        self.worker.finished.connect(self.worker.deleteLater)  
+        self.thread.finished.connect(self.thread.deleteLater)  
+
+        self.worker.text.connect(self.add_text)
+
+        self.thread.started.connect(self.worker.do_work)
+        self.thread.finished.connect(self.worker.stop)
+        # Start Button action:
+        self.start_button.clicked.connect(self.thread.start)
+        self.start_button.clicked.connect(self.signal_start)
+        # Stop Button action:
+        self.back_button.clicked.connect(self.stop_thread)
+        self.back_button.clicked.connect(self.signal_stop)
+        self.stop_button.clicked.connect(self.stop_thread)
+        self.stop_button.clicked.connect(self.signal_stop)
+
+        self.topleft_status = False
+        self.bottomright_status = False
+
+    def signal_stop(self):
+        self.status.setText("Status : Waiting...")
+        self.worker.check(False)
+
+    def signal_start(self):
+        self.status.setText("Status : Working.")
+        self.worker.check(True)
+
+    def add_text(self,text):
+        self.textBrowser.setText(text)
+        
+    def stop_thread(self):
+        self.stop_signal.emit()
+        
+    def b_translate(self):
+        if self.topleft_status == False and self.bottomright_status == False:
+            QMessageBox.about(MainWindow,"Error !", "Coordinate setup needed !")
+        else:
+            MainWindow.setFixedSize(800, 600)
+            self.stackedWidget.setCurrentIndex(1)
+            
+    def b_back(self):
+        MainWindow.setFixedSize(600, 300)
+        self.stackedWidget.setCurrentIndex(0)
+
+    def setup(self):
+
+        self.topleft_status = False
+        self.bottomright_status = False
+    
+        self.topleft_coordinate.setText("Coordinates : Waiting...")
+        self.bottomright_coordinate.setText("Coordinates : Waiting...")
+
+        while True:
+            if keyboard.is_pressed('-') and self.topleft_status == False:
+                self.top_left = pyautogui.position()
+                self.topleft_status = True
+                self.topleft_coordinate.setText("Coordinates : "+str(self.top_left.x)+","+str(self.top_left.y)+" OK.")
+
+            if keyboard.is_pressed('+') and self.bottomright_status == False:
+                self.bottom_right = pyautogui.position()
+                self.bottomright_status = True
+                self.bottomright_coordinate.setText("Coordinates : "+str(self.bottom_right.x)+","+str(self.bottom_right.y)+" OK.")
+                
+            if self.bottomright_status == True and self.topleft_status == True :
+                self.coordinate_status.setText("Coordinates OK.")
+                self.worker.set_coordinates(self.top_left.x, self.top_left.y, self.bottom_right.x, self.bottom_right.y,self.language_1.text(),self.language_2.text())
+                break
+
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "Translater"))
+        self.translate_button.setText(_translate("MainWindow", "Translate"))
+        self.bottomright.setText(_translate("MainWindow", "Bottom Right"))
+        self.topleft.setText(_translate("MainWindow", "Top Left"))
+        self.topleft_coordinate.setText(_translate("MainWindow", "Coordinates :"))
+        self.bottomright_coordinate.setText(_translate("MainWindow", "Coordinates :"))
+        self.coordinate_status.setText(_translate("MainWindow", "Looking for coordinates"))
+        self.setup_button.setText(_translate("MainWindow", "Setup"))
+        self.language_1.setText(_translate("MainWindow", "eng"))
+        self.language_comment.setText(_translate("MainWindow", "Top left coordinates with - key\nBottom right coordinates with + key\nJust move your mouse to any coordinate and press it !"))
+        self.label.setText(_translate("MainWindow", "to"))
+        self.language_2.setText(_translate("MainWindow", "tr"))
+        self.label_3.setText(_translate("MainWindow", "Language Settings"))
+        self.back_button.setText(_translate("MainWindow", "Back"))
+        self.start_button.setText(_translate("MainWindow", "Start"))
+        self.stop_button.setText(_translate("MainWindow", "Stop"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
