@@ -7,3 +7,9 @@ For example in the game you can select the subtitle area. Its translateing every
 Translater uses Google Translate API and PyTesseact.
 
 Changeable language suppport.
+
+# Usage
+
+Click 'Setup' button and press '-' key for top left coordinates, press '+' key for bottom right coorditnates.
+
+Set your language then click 'Translate'
