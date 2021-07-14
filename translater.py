@@ -27,19 +27,13 @@ class Worker(QObject):
                 screen = pyautogui.screenshot()
                 self.img_res = screen.crop((self.top_leftx, self.top_lefty, self.bottom_rightx, self.bottom_righty))
                 sentence = pytesseract.image_to_string(self.img_res, lang=self.language1)
-                list_eng = [sentence]  
-                rez = []
-                for x in list_eng:
-                    rez.append(x.replace("\n"," "))
 
                 try:
-                    self.tr = translator.translate(str(rez) ,dest=self.language2)
+                    self.tr = translator.translate(str(sentence) ,dest=self.language2)
                 except:
-                    pass
+                    print("Check your connection !")
 
                 tr_text = str(self.tr.text)
-                tr_text = tr_text[:-7]
-                tr_text = tr_text[2:]
                 
                 time.sleep(0.65)
 
