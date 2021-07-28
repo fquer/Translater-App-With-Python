@@ -27,7 +27,6 @@ class Worker(QObject):
             if self.continue_run == True:
                 screen = pyautogui.screenshot()
                 self.img_res = screen.crop((self.top_leftx, self.top_lefty, self.bottom_rightx, self.bottom_righty))
-                self.img_res.show()
                 sentence = pytesseract.image_to_string(self.img_res, lang=self.language1)
 
                 try:
@@ -81,7 +80,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
         self.translate_button = QtWidgets.QPushButton(self.page)
-        self.translate_button.setGeometry(QtCore.QRect(410, 150, 75, 23))
+        self.translate_button.setGeometry(QtCore.QRect(410, 140, 75, 23))
         self.translate_button.setObjectName("translate_button")
         self.bottomright = QtWidgets.QLabel(self.page)
         self.bottomright.setGeometry(QtCore.QRect(40, 80, 111, 21))
@@ -117,23 +116,23 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.setup_button.setGeometry(QtCore.QRect(100, 130, 75, 23))
         self.setup_button.setObjectName("setup_button")
         self.language_1 = QtWidgets.QLineEdit(self.page)
-        self.language_1.setGeometry(QtCore.QRect(380, 70, 41, 20))
+        self.language_1.setGeometry(QtCore.QRect(380, 40, 41, 20))
         self.language_1.setObjectName("language_1")
         self.language_comment = QtWidgets.QLabel(self.page)
-        self.language_comment.setGeometry(QtCore.QRect(310, 75, 275, 78))
+        self.language_comment.setGeometry(QtCore.QRect(310, 60, 275, 78))
         self.language_comment.setObjectName("language_1")
         self.language_comment.setAlignment(QtCore.Qt.AlignCenter)
         self.label = QtWidgets.QLabel(self.page)
-        self.label.setGeometry(QtCore.QRect(440, 70, 31, 20))
+        self.label.setGeometry(QtCore.QRect(440, 40, 31, 20))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.language_2 = QtWidgets.QLineEdit(self.page)
-        self.language_2.setGeometry(QtCore.QRect(470, 70, 41, 20))
+        self.language_2.setGeometry(QtCore.QRect(470, 40, 41, 20))
         self.language_2.setObjectName("language_2")
         self.label_3 = QtWidgets.QLabel(self.page)
-        self.label_3.setGeometry(QtCore.QRect(380, 30, 161, 21))
+        self.label_3.setGeometry(QtCore.QRect(380, 10, 161, 21))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_3.setFont(font)
@@ -148,29 +147,32 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.textBrowser.setFont(font)
         self.textBrowser.setObjectName("textBrowser")
 
+        self.textBrowser.setStyleSheet("background-color: rgb(202, 202, 202);")
+        
+
         self.monitor_helper = QtWidgets.QLabel(self.page)
-        self.monitor_helper.setGeometry(QtCore.QRect(290, 185, 181, 51))
+        self.monitor_helper.setGeometry(QtCore.QRect(295, 185, 191, 41))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.monitor_helper.setFont(font)
         self.monitor_helper.setObjectName("monitor_helper")
-        self.monitor_helper.setText("Set your multiple-monitor setup\n------\t\t\t   ------\n|1|2|\t\t\t   |2|1|\n------\t\t\t   ------")
+        self.monitor_helper.setText("Set your multiple-monitor setup\n------\t\t\t      ------\n|1|2|\t\t\t      |2|1|\n------\t\t\t      ------")
         self.monitor_helper.setEnabled(False)
 
         self.monitor = QCheckBox(self.page)
         self.monitor.setText("Multiple-Monitors")
-        self.monitor.setGeometry(QtCore.QRect(150, 210, 161, 21))
+        self.monitor.setGeometry(QtCore.QRect(120, 210, 161, 21))
         self.monitor.stateChanged.connect(lambda:self.check_state(self.monitor))
 
         self.monitor_1 = QCheckBox(self.page)
         self.monitor_1.setText("1")
-        self.monitor_1.setGeometry(QtCore.QRect(450, 240, 161, 21))
+        self.monitor_1.setGeometry(QtCore.QRect(470, 240, 161, 21))
         self.monitor_1.stateChanged.connect(lambda:self.check_state(self.monitor_1))
         self.monitor_1.setEnabled(False)
 
         self.monitor_0 = QCheckBox(self.page)
         self.monitor_0.setText("0")
-        self.monitor_0.setGeometry(QtCore.QRect(295, 240, 161, 21))
+        self.monitor_0.setGeometry(QtCore.QRect(305, 240, 161, 21))
         self.monitor_0.stateChanged.connect(lambda:self.check_state(self.monitor_0))
         self.monitor_0.setEnabled(False)
 
@@ -283,9 +285,11 @@ class Ui_MainWindow(QtWidgets.QWidget):
         else:
             self.worker.set_coordinates(self.top_left.x, self.top_left.y, self.bottom_right.x, self.bottom_right.y,self.language_1.text(),self.language_2.text(),self.monitor_state)
             MainWindow.setFixedSize(800, 600)
+            MainWindow.setStyleSheet("background-color: rgb(67, 67, 67);")
             self.stackedWidget.setCurrentIndex(1)
             
     def b_back(self):
+        MainWindow.setStyleSheet("background-color: rgb(202, 202, 202);")
         MainWindow.setFixedSize(600, 300)
         self.stackedWidget.setCurrentIndex(0)
 
