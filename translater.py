@@ -1,11 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QObject, QThread, pyqtSignal
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QCheckBox, QMessageBox
 import pytesseract
 import pyautogui
 import keyboard
 import time
 from googletrans import Translator
+from screeninfo import get_monitors
 
 translator = Translator()
 
@@ -26,29 +27,35 @@ class Worker(QObject):
             if self.continue_run == True:
                 screen = pyautogui.screenshot()
                 self.img_res = screen.crop((self.top_leftx, self.top_lefty, self.bottom_rightx, self.bottom_righty))
+                self.img_res.show()
                 sentence = pytesseract.image_to_string(self.img_res, lang=self.language1)
 
                 try:
                     self.tr = translator.translate(str(sentence) ,dest=self.language2)
+                    tr_text = str(self.tr.text)
+                    time.sleep(1)
+                    self.text.emit(tr_text)
                 except:
-                    print("Check your connection !")
-
-                tr_text = str(self.tr.text)
-                
-                time.sleep(0.65)
-
-                self.text.emit(tr_text)
+                    print("Check your connection or screen setup !")
+   
             else:
                 pass
             
 
-    def set_coordinates(self,topx,topy,botx,boty,l1,l2):
+    def set_coordinates(self,topx,topy,botx,boty,l1,l2,monitor):
         self.top_leftx=topx
         self.top_lefty=topy
         self.bottom_rightx=botx
         self.bottom_righty=boty
         self.language1=l1
         self.language2=l2
+
+        if monitor == 1:
+            for m in get_monitors():
+                if m.x < 0:
+                    left_monitor = m.x * -1
+            self.top_leftx = self.top_leftx + left_monitor
+            self.bottom_rightx = self.bottom_rightx + left_monitor
 
 
     def get_trans(self):
@@ -74,7 +81,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
         self.translate_button = QtWidgets.QPushButton(self.page)
-        self.translate_button.setGeometry(QtCore.QRect(410, 160, 75, 23))
+        self.translate_button.setGeometry(QtCore.QRect(410, 150, 75, 23))
         self.translate_button.setObjectName("translate_button")
         self.bottomright = QtWidgets.QLabel(self.page)
         self.bottomright.setGeometry(QtCore.QRect(40, 80, 111, 21))
@@ -113,7 +120,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.language_1.setGeometry(QtCore.QRect(380, 70, 41, 20))
         self.language_1.setObjectName("language_1")
         self.language_comment = QtWidgets.QLabel(self.page)
-        self.language_comment.setGeometry(QtCore.QRect(310, 70, 260, 90))
+        self.language_comment.setGeometry(QtCore.QRect(310, 75, 275, 78))
         self.language_comment.setObjectName("language_1")
         self.language_comment.setAlignment(QtCore.Qt.AlignCenter)
         self.label = QtWidgets.QLabel(self.page)
@@ -140,6 +147,35 @@ class Ui_MainWindow(QtWidgets.QWidget):
         font.setPointSize(13)
         self.textBrowser.setFont(font)
         self.textBrowser.setObjectName("textBrowser")
+
+        self.monitor_helper = QtWidgets.QLabel(self.page)
+        self.monitor_helper.setGeometry(QtCore.QRect(290, 185, 181, 51))
+        font = QtGui.QFont()
+        font.setPointSize(9)
+        self.monitor_helper.setFont(font)
+        self.monitor_helper.setObjectName("monitor_helper")
+        self.monitor_helper.setText("Set your multiple-monitor setup\n------\t\t\t   ------\n|1|2|\t\t\t   |2|1|\n------\t\t\t   ------")
+        self.monitor_helper.setEnabled(False)
+
+        self.monitor = QCheckBox(self.page)
+        self.monitor.setText("Multiple-Monitors")
+        self.monitor.setGeometry(QtCore.QRect(150, 210, 161, 21))
+        self.monitor.stateChanged.connect(lambda:self.check_state(self.monitor))
+
+        self.monitor_1 = QCheckBox(self.page)
+        self.monitor_1.setText("1")
+        self.monitor_1.setGeometry(QtCore.QRect(450, 240, 161, 21))
+        self.monitor_1.stateChanged.connect(lambda:self.check_state(self.monitor_1))
+        self.monitor_1.setEnabled(False)
+
+        self.monitor_0 = QCheckBox(self.page)
+        self.monitor_0.setText("0")
+        self.monitor_0.setGeometry(QtCore.QRect(295, 240, 161, 21))
+        self.monitor_0.stateChanged.connect(lambda:self.check_state(self.monitor_0))
+        self.monitor_0.setEnabled(False)
+
+        self.monitor_state = 0
+
         self.back_button = QtWidgets.QPushButton(self.page_2)
         self.back_button.setGeometry(QtCore.QRect(30, 510, 75, 23))
         self.back_button.setObjectName("back_button")
@@ -198,6 +234,35 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.topleft_status = False
         self.bottomright_status = False
 
+    def check_state(self,b):
+        if b.text() == "Multiple-Monitors":
+            if b.isChecked() == True:
+                self.monitor_0.setEnabled(True)
+                self.monitor_1.setEnabled(True)
+                self.monitor_helper.setEnabled(True)
+            else:
+                self.monitor_0.setChecked(False)
+                self.monitor_0.setEnabled(False)
+                self.monitor_1.setEnabled(False)
+                self.monitor_1.setChecked(False)
+                self.monitor_helper.setEnabled(False)
+				
+        if b.text() == "0":
+            if b.isChecked() == True:
+                self.monitor_state = 0
+                self.monitor_1.setEnabled(False)
+            else:
+                self.monitor_state = 1
+                self.monitor_1.setEnabled(True)
+
+        if b.text() == "1":
+            if b.isChecked() == True:
+                self.monitor_state = 1
+                self.monitor_0.setEnabled(False)
+            else:
+                self.monitor_state = 0
+                self.monitor_0.setEnabled(True)
+
     def signal_stop(self):
         self.status.setText("Status : Waiting...")
         self.worker.check(False)
@@ -216,6 +281,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         if self.topleft_status == False and self.bottomright_status == False:
             QMessageBox.about(MainWindow,"Error !", "Coordinate setup needed !")
         else:
+            self.worker.set_coordinates(self.top_left.x, self.top_left.y, self.bottom_right.x, self.bottom_right.y,self.language_1.text(),self.language_2.text(),self.monitor_state)
             MainWindow.setFixedSize(800, 600)
             self.stackedWidget.setCurrentIndex(1)
             
@@ -244,7 +310,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
                 
             if self.bottomright_status == True and self.topleft_status == True :
                 self.coordinate_status.setText("Coordinates OK.")
-                self.worker.set_coordinates(self.top_left.x, self.top_left.y, self.bottom_right.x, self.bottom_right.y,self.language_1.text(),self.language_2.text())
+                self.worker.set_coordinates(self.top_left.x, self.top_left.y, self.bottom_right.x, self.bottom_right.y,self.language_1.text(),self.language_2.text(),self.monitor_state)
                 break
 
     def retranslateUi(self, MainWindow):
