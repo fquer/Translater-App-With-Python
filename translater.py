@@ -9,6 +9,7 @@ from googletrans import Translator
 from screeninfo import get_monitors
 import getpass
 import os
+import traceback
 
 translator = Translator()
 username = getpass.getuser()
@@ -35,8 +36,8 @@ class Worker(QObject):
                     tr_text = str(self.tr.text)
                     time.sleep(1)
                     self.text.emit(tr_text)
-                except:
-                    tr_text = "Check your connection or screen setup !"
+                except Exception:
+                    tr_text = traceback.print_exc()
                     self.text.emit(tr_text)
                     
             else:
@@ -142,15 +143,14 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
+
         self.textBrowser = QtWidgets.QTextBrowser(self.page_2)
         self.textBrowser.setGeometry(QtCore.QRect(30, 30, 711, 461))
         font = QtGui.QFont()
         font.setPointSize(13)
         self.textBrowser.setFont(font)
         self.textBrowser.setObjectName("textBrowser")
-
         self.textBrowser.setStyleSheet("background-color: rgb(202, 202, 202);")
-        
 
         self.monitor_helper = QtWidgets.QLabel(self.page)
         self.monitor_helper.setGeometry(QtCore.QRect(295, 185, 191, 41))
@@ -183,12 +183,15 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.back_button = QtWidgets.QPushButton(self.page_2)
         self.back_button.setGeometry(QtCore.QRect(30, 510, 75, 23))
         self.back_button.setObjectName("back_button")
+
         self.start_button = QtWidgets.QPushButton(self.page_2)
         self.start_button.setGeometry(QtCore.QRect(400, 510, 75, 23))
         self.start_button.setObjectName("start_button")
+
         self.stop_button = QtWidgets.QPushButton(self.page_2)
         self.stop_button.setGeometry(QtCore.QRect(300, 510, 75, 23))
         self.stop_button.setObjectName("stop_button")
+
         self.status = QtWidgets.QLabel(self.page_2)
         self.status.setGeometry(QtCore.QRect(550, 510, 161, 21))
         font = QtGui.QFont()
