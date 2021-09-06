@@ -7,10 +7,11 @@ import keyboard
 import time
 from googletrans import Translator
 from screeninfo import get_monitors
+import getpass
+import os
 
 translator = Translator()
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\Users\Kaan\AppData\Local\Programs\Tesseract-OCR\tesseract.exe'
+username = getpass.getuser()
 
 class Worker(QObject):
     
@@ -19,7 +20,7 @@ class Worker(QObject):
 
     def __init__(self, parent=None):
         QObject.__init__(self, parent=parent)
-        self.continue_run = True  
+        self.continue_run = True 
 
     def do_work(self):
         
@@ -35,8 +36,9 @@ class Worker(QObject):
                     time.sleep(1)
                     self.text.emit(tr_text)
                 except:
-                    print("Check your connection or screen setup !")
-   
+                    tr_text = "Check your connection or screen setup !"
+                    self.text.emit(tr_text)
+                    
             else:
                 pass
             
@@ -236,6 +238,8 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.topleft_status = False
         self.bottomright_status = False
 
+        
+
     def check_state(self,b):
         if b.text() == "Multiple-Monitors":
             if b.isChecked() == True:
@@ -287,6 +291,16 @@ class Ui_MainWindow(QtWidgets.QWidget):
             MainWindow.setFixedSize(800, 600)
             MainWindow.setStyleSheet("background-color: rgb(67, 67, 67);")
             self.stackedWidget.setCurrentIndex(1)
+
+            if os.path.exists('C:\\Users\\'+ username +'\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'):
+                pytesseract.pytesseract.tesseract_cmd = 'C:\\Users\\'+ username +'\\AppData\\Local\\Programs\\Tesseract-OCR\\tesseract.exe'
+
+            elif os.path.exists('C:\\Program Files\\Tesseract-OCR\\tesseract.exe'):
+                pytesseract.pytesseract.tesseract_cmd = 'C:\\Program Files\\Tesseract-OCR\\tesseract.exe'
+
+            else:
+                QMessageBox.about(MainWindow,"Error !", "Tesseract Not Found !")
+                exit() 
             
     def b_back(self):
         MainWindow.setStyleSheet("background-color: rgb(202, 202, 202);")
