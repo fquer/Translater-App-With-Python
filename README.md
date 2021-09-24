@@ -23,6 +23,10 @@ Click 'Setup' button and press '-' key for top left coordinates, press '+' key f
 
 Set your language then click 'Translate'
 
+# Releases
+
+Download lastest release here: https://github.com/fquer/Translater-App-With-Python/releases
+
 # Supported Languages
 
     'af': 'afrikaans',
