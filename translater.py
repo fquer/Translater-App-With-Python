@@ -9,7 +9,9 @@ from googletrans import Translator
 from screeninfo import get_monitors
 import getpass
 import os
-import traceback
+from PIL import ImageGrab
+from functools import partial
+ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
 
 translator = Translator()
 username = getpass.getuser()
@@ -36,9 +38,8 @@ class Worker(QObject):
                     tr_text = str(self.tr.text)
                     time.sleep(1)
                     self.text.emit(tr_text)
-                except Exception:
-                    tr_text = traceback.print_exc()
-                    self.text.emit(tr_text)
+                except:
+                    self.text.emit("")
                     
             else:
                 pass
