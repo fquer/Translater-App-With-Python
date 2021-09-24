@@ -15,7 +15,7 @@ Changeable language suppport.
 * pyautogui
 * keyboard
 * googletrans==4.0.0rc1
-* In line 12 you need to set tesseract.exe file. The latest installers can be downloaded here: https://github.com/UB-Mannheim/tesseract/wiki
+* You need Tesseract. The latest installers can be downloaded here: https://github.com/UB-Mannheim/tesseract/wiki
 
 # Usage
 
