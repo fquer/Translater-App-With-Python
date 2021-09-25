@@ -15,6 +15,7 @@ Changeable language suppport.
 * pyautogui
 * keyboard
 * googletrans==4.0.0rc1
+* PIL (dual monitor setup will be need 8.3 or higher)
 * You need Tesseract. The latest installers can be downloaded here: https://github.com/UB-Mannheim/tesseract/wiki
 
 # Usage
