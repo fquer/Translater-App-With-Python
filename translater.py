@@ -37,11 +37,11 @@ class Worker(QObject):
             if self.continue_run == True:
                 screen = pyautogui.screenshot()
                 self.img_res = screen.crop((self.top_leftx, self.top_lefty, self.bottom_rightx, self.bottom_righty))
-                sentence = pytesseract.image_to_string(self.img_res, lang=self.language1)
+                sentence = pytesseract.image_to_string(self.img_res)
                 sentence = str(sentence).replace("\n"," ")
                 
                 try:
-                    self.tr = translator.translate(sentence ,dest=self.language2)
+                    self.tr = translator.translate(sentence , src = self.language1, dest=self.language2)
                     tr_text = str(self.tr.text)
                     time.sleep(1)
                     self.text.emit(tr_text)
