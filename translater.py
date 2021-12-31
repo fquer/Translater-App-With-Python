@@ -354,7 +354,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.bottomright_coordinate.setText(_translate("MainWindow", "Coordinates :"))
         self.coordinate_status.setText(_translate("MainWindow", "Looking for coordinates"))
         self.setup_button.setText(_translate("MainWindow", "Setup"))
-        self.language_1.setText(_translate("MainWindow", "eng"))
+        self.language_1.setText(_translate("MainWindow", "en"))
         self.label.setText(_translate("MainWindow", "to"))
         self.language_2.setText(_translate("MainWindow", "tr"))
         self.label_3.setText(_translate("MainWindow", "Language Settings"))
