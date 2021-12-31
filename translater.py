@@ -12,6 +12,12 @@ import os
 from PIL import ImageGrab
 from functools import partial
 ImageGrab.grab = partial(ImageGrab.grab, all_screens=True)
+import ctypes
+myappid = 'translater.app' # arbitrary string
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+abspath = os.path.abspath(__file__)
+dname = os.path.dirname(abspath)
+os.chdir(dname)
 
 translator = Translator()
 username = getpass.getuser()
@@ -32,17 +38,17 @@ class Worker(QObject):
                 screen = pyautogui.screenshot()
                 self.img_res = screen.crop((self.top_leftx, self.top_lefty, self.bottom_rightx, self.bottom_righty))
                 sentence = pytesseract.image_to_string(self.img_res, lang=self.language1)
-
+                sentence = str(sentence).replace("\n"," ")
+                
                 try:
-                    self.tr = translator.translate(str(sentence) ,dest=self.language2)
+                    self.tr = translator.translate(sentence ,dest=self.language2)
                     tr_text = str(self.tr.text)
                     time.sleep(1)
                     self.text.emit(tr_text)
                 except:
                     self.text.emit("")
-                    
-            else:
-                pass
+
+
             
 
     def set_coordinates(self,topx,topy,botx,boty,l1,l2,monitor):
@@ -75,7 +81,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
     stop_signal = pyqtSignal()
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedSize(600, 300)
+        MainWindow.setFixedSize(600, 350)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
@@ -84,7 +90,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
         self.translate_button = QtWidgets.QPushButton(self.page)
-        self.translate_button.setGeometry(QtCore.QRect(410, 140, 75, 23))
+        self.translate_button.setGeometry(QtCore.QRect(410, 230, 75, 23))
         self.translate_button.setObjectName("translate_button")
         self.bottomright = QtWidgets.QLabel(self.page)
         self.bottomright.setGeometry(QtCore.QRect(40, 80, 111, 21))
@@ -119,24 +125,28 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.setup_button = QtWidgets.QPushButton(self.page)
         self.setup_button.setGeometry(QtCore.QRect(100, 130, 75, 23))
         self.setup_button.setObjectName("setup_button")
+
+        self.help_button = QtWidgets.QPushButton(self.page)
+        self.help_button.setGeometry(QtCore.QRect(115, 250, 45, 23))
+        self.help_button.setObjectName("help_button")
+        self.help_button.setText("Help")
+        self.help_button.clicked.connect(lambda:QMessageBox.about(MainWindow,"Help", "Top left coordinates with - key\nBottom right coordinates with + key\nJust move your mouse to any coordinate and press it !"))
+
         self.language_1 = QtWidgets.QLineEdit(self.page)
-        self.language_1.setGeometry(QtCore.QRect(380, 40, 41, 20))
+        self.language_1.setGeometry(QtCore.QRect(380, 180, 41, 20))
         self.language_1.setObjectName("language_1")
-        self.language_comment = QtWidgets.QLabel(self.page)
-        self.language_comment.setGeometry(QtCore.QRect(310, 60, 275, 78))
-        self.language_comment.setObjectName("language_1")
-        self.language_comment.setAlignment(QtCore.Qt.AlignCenter)
+
         self.label = QtWidgets.QLabel(self.page)
-        self.label.setGeometry(QtCore.QRect(440, 40, 31, 20))
+        self.label.setGeometry(QtCore.QRect(440, 180, 31, 20))
         font = QtGui.QFont()
         font.setPointSize(11)
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.language_2 = QtWidgets.QLineEdit(self.page)
-        self.language_2.setGeometry(QtCore.QRect(470, 40, 41, 20))
+        self.language_2.setGeometry(QtCore.QRect(470, 180, 41, 20))
         self.language_2.setObjectName("language_2")
         self.label_3 = QtWidgets.QLabel(self.page)
-        self.label_3.setGeometry(QtCore.QRect(380, 10, 161, 21))
+        self.label_3.setGeometry(QtCore.QRect(380, 150, 161, 21))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_3.setFont(font)
@@ -144,38 +154,39 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
-
         self.textBrowser = QtWidgets.QTextBrowser(self.page_2)
         self.textBrowser.setGeometry(QtCore.QRect(30, 30, 711, 461))
         font = QtGui.QFont()
         font.setPointSize(13)
         self.textBrowser.setFont(font)
         self.textBrowser.setObjectName("textBrowser")
+
         self.textBrowser.setStyleSheet("background-color: rgb(202, 202, 202);")
+        
 
         self.monitor_helper = QtWidgets.QLabel(self.page)
-        self.monitor_helper.setGeometry(QtCore.QRect(295, 185, 191, 41))
+        self.monitor_helper.setGeometry(QtCore.QRect(340, 60, 190, 18))
         font = QtGui.QFont()
         font.setPointSize(9)
         self.monitor_helper.setFont(font)
         self.monitor_helper.setObjectName("monitor_helper")
-        self.monitor_helper.setText("Set your multiple-monitor setup\n------\t\t\t      ------\n|1|2|\t\t\t      |2|1|\n------\t\t\t      ------")
+        self.monitor_helper.setText("Set your multiple-monitor setup")
         self.monitor_helper.setEnabled(False)
 
         self.monitor = QCheckBox(self.page)
         self.monitor.setText("Multiple-Monitors")
-        self.monitor.setGeometry(QtCore.QRect(120, 210, 161, 21))
+        self.monitor.setGeometry(QtCore.QRect(380, 25, 161, 21))
         self.monitor.stateChanged.connect(lambda:self.check_state(self.monitor))
 
         self.monitor_1 = QCheckBox(self.page)
-        self.monitor_1.setText("1")
-        self.monitor_1.setGeometry(QtCore.QRect(470, 240, 161, 21))
+        self.monitor_1.setText("|2|1|")
+        self.monitor_1.setGeometry(QtCore.QRect(450, 100, 70, 21))
         self.monitor_1.stateChanged.connect(lambda:self.check_state(self.monitor_1))
         self.monitor_1.setEnabled(False)
 
         self.monitor_0 = QCheckBox(self.page)
-        self.monitor_0.setText("0")
-        self.monitor_0.setGeometry(QtCore.QRect(305, 240, 161, 21))
+        self.monitor_0.setText("|1|2|")
+        self.monitor_0.setGeometry(QtCore.QRect(355, 100, 70, 21))
         self.monitor_0.stateChanged.connect(lambda:self.check_state(self.monitor_0))
         self.monitor_0.setEnabled(False)
 
@@ -184,15 +195,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.back_button = QtWidgets.QPushButton(self.page_2)
         self.back_button.setGeometry(QtCore.QRect(30, 510, 75, 23))
         self.back_button.setObjectName("back_button")
-
-        self.start_button = QtWidgets.QPushButton(self.page_2)
-        self.start_button.setGeometry(QtCore.QRect(400, 510, 75, 23))
-        self.start_button.setObjectName("start_button")
-
-        self.stop_button = QtWidgets.QPushButton(self.page_2)
-        self.stop_button.setGeometry(QtCore.QRect(300, 510, 75, 23))
-        self.stop_button.setObjectName("stop_button")
-
+        
         self.status = QtWidgets.QLabel(self.page_2)
         self.status.setGeometry(QtCore.QRect(550, 510, 161, 21))
         font = QtGui.QFont()
@@ -206,7 +209,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
         self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -228,6 +230,13 @@ class Ui_MainWindow(QtWidgets.QWidget):
 
         self.worker.text.connect(self.add_text)
 
+        self.start_button = QtWidgets.QPushButton(self.page_2)
+        self.start_button.setGeometry(QtCore.QRect(400, 510, 75, 23))
+        self.start_button.setObjectName("start_button")
+        self.stop_button = QtWidgets.QPushButton(self.page_2)
+        self.stop_button.setGeometry(QtCore.QRect(300, 510, 75, 23))
+        self.stop_button.setObjectName("stop_button")
+
         self.thread.started.connect(self.worker.do_work)
         self.thread.finished.connect(self.worker.stop)
         # Start Button action:
@@ -242,7 +251,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.topleft_status = False
         self.bottomright_status = False
 
-        
+        self.retranslateUi(MainWindow)
 
     def check_state(self,b):
         if b.text() == "Multiple-Monitors":
@@ -257,7 +266,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
                 self.monitor_1.setChecked(False)
                 self.monitor_helper.setEnabled(False)
 				
-        if b.text() == "0":
+        if b.text() == "|1|2|":
             if b.isChecked() == True:
                 self.monitor_state = 0
                 self.monitor_1.setEnabled(False)
@@ -265,7 +274,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
                 self.monitor_state = 1
                 self.monitor_1.setEnabled(True)
 
-        if b.text() == "1":
+        if b.text() == "|2|1|":
             if b.isChecked() == True:
                 self.monitor_state = 1
                 self.monitor_0.setEnabled(False)
@@ -308,7 +317,7 @@ class Ui_MainWindow(QtWidgets.QWidget):
             
     def b_back(self):
         MainWindow.setStyleSheet("background-color: rgb(202, 202, 202);")
-        MainWindow.setFixedSize(600, 300)
+        MainWindow.setFixedSize(600, 350)
         self.stackedWidget.setCurrentIndex(0)
 
     def setup(self):
@@ -346,7 +355,6 @@ class Ui_MainWindow(QtWidgets.QWidget):
         self.coordinate_status.setText(_translate("MainWindow", "Looking for coordinates"))
         self.setup_button.setText(_translate("MainWindow", "Setup"))
         self.language_1.setText(_translate("MainWindow", "eng"))
-        self.language_comment.setText(_translate("MainWindow", "Top left coordinates with - key\nBottom right coordinates with + key\nJust move your mouse to any coordinate and press it !"))
         self.label.setText(_translate("MainWindow", "to"))
         self.language_2.setText(_translate("MainWindow", "tr"))
         self.label_3.setText(_translate("MainWindow", "Language Settings"))
